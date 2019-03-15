@@ -41,7 +41,7 @@ def processing() {
 	sql.execute(deleteIfExist)
 	sql.execute(query)
 
-    literalOutput = i18n.tr("Process done !")
+    literalOutput = i18n.tr(query)
 }
 
 /**********************/
@@ -94,31 +94,31 @@ String demTableName
     title = "Maximum Propagation Distance",
     description = "The maximum propagation distance",
     minOccurs = 1)
-String maximumPropagationDistance
+String maximumPropagationDistance = "750"
 
 @LiteralDataInput(
     title = "Maximum Wall Seeking Distance",
     description = "The maximum wall seeking distance",
     minOccurs = 1)
-String maximumWallSeekingDistance
+String maximumWallSeekingDistance = "50"
 
 @LiteralDataInput(
     title = "Sound Reflection Order",
     description = "The sound reflection order",
     minOccurs = 1)
-String soundReflectionOrder
+String soundReflectionOrder = "2"
 
 @LiteralDataInput(
     title = "Sound Diffraction Order",
     description = "The sound diffraction order",
     minOccurs = 1)
-String soundDiffrationOrder
+String soundDiffrationOrder = "1"
 
 @LiteralDataInput(
     title = "Wall Alpha",
     description = "The wall alpha",
     minOccurs = 1)
-String wallAlpha
+String wallAlpha = "0.23"
 
 /** Output message. */
 @LiteralDataOutput(
