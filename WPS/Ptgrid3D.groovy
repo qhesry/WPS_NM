@@ -111,7 +111,7 @@ String soundReflectionOrder = "2"
 @LiteralDataInput(
     title = "Sound Diffraction Order",
     description = "The sound diffraction order",
-    minOccurs = 1)
+    minOccurs = 0)
 String soundDiffrationOrder = "1"
 
 @LiteralDataInput(
