@@ -4,7 +4,7 @@
 
 This repository contains WPS (Web Processing Service) scripts allowing to perform NoiseModelling calculation functions using the OrbisGis graphical interface rather than by SQL line of code
 
-## How to use ?
+## How to use ?
 
 To import the script :
 
