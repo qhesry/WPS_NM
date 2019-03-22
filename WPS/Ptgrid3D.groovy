@@ -41,7 +41,7 @@ def processing() {
 	sql.execute(deleteIfExist)
 	sql.execute(query)
 
-    literalOutput = i18n.tr(query)
+    literalOutput = i18n.tr("Process done !")
 }
 
 /**********************/
