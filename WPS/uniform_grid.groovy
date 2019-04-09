@@ -23,17 +23,19 @@ def processing() {
 	String outputTableName = "grid"
 	String deleteIfExistGrid = String.format("DROP TABLE IF EXISTS %s", outputTableName)
 
-    String queryGrid = String.format("CREATE TABLE grid AS SELECT * FROM ST_MakeGridPoints('"
-    + buildingTableName + "',"
-    + deltaX + ","
-    + deltaY + ");")
+        String queryGrid = String.format("CREATE TABLE grid AS SELECT * FROM ST_MakeGridPoints('"
+        + buildingTableName + "',"
+        + deltaX + ","
+        + deltaY + ");")
 
 	sql.execute(deleteIfExistGrid)
-	sql.execute(queryGrid)
-    sql.execute("DROP TABLE IF EXISTS newGrid;")
-    sql.execute("CREATE TABLE newGrid AS SELECT g.* FROM grid as G LEFT JOIN "+ buildingTableName + " AS b ON ST_intersects(b.the_geom, g.the_geom) WHERE b."+ pk_buildingTable[0] +" IS NULL;")
+        sql.execute(queryGrid)
 
-    literalOutput = i18n.tr("Process done !")
+        sql.execute("delete from grid g where exists (select 1 from "+buildingTableName+" b where g.the_geom && b.the_geom and ST_distance(b.the_geom, g.the_geom) < 1 limit 1);")
+
+        sql.execute("delete from grid g where exists (select 1 from "+roadsTableName+" r where st_expand(g.the_geom, 1) && r.the_geom and st_distance(g.the_geom, r.the_geom) < 1 limit 1);")
+
+        literalOutput = i18n.tr("Process done !")
 }
 
 /**********************/
@@ -45,22 +47,6 @@ def processing() {
 	description = "The table with the buildings",
 	identifier = "BuildingTableName")
 String buildingTableName
-
-@JDBCColumnInput(
-        title = "Building Primary Key Field",
-        description = "The primary key field column of the buildings table",
-        jdbcTableReference = "BuildingTableName",
-        identifier = "PkBuildingField"
-)
-String[] pk_buildingTable
-
-@JDBCColumnInput(
-        title = "Building Geometry Column",
-        description = "The geometry column of the buildings table",
-        jdbcTableReference = "BuildingTableName",
-        identifier = "BuildingGeometryColumn"
-)
-String[] buildingGeometryColumn
 
 @JDBCTableInput(
 	title = "Road Table",
