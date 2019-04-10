@@ -20,16 +20,17 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         identifier = "orbisgis:wps:NM:RandomGrid"
 )
 def processing() {
-
-        sql.execute("SET @XMAX = SELECT ST_XMAX(THE_GEOM) FROM "+ buildingTableName+";")
-        sql.execute("SET @YMAX = SELECT ST_YMAX(THE_GEOM) FROM "+ buildingTableName+";")
-        sql.execute("SET @XMIN = SELECT ST_XMIN(THE_GEOM) FROM "+ buildingTableName+";")
-        sql.execute("SET @YMIN = SELECT ST_YMIN(THE_GEOM) FROM "+ buildingTableName+";")
-	String outputTableName = "grid"
+        String outputTableName = "grid"
 	String deleteIfExistGrid = String.format("DROP TABLE IF EXISTS %s", outputTableName)
-
         sql.execute(deleteIfExistGrid)
-        sql.execute("create table "+outputTableName+ " as select ST_MAKEPOINT(RAND()*(@XMAX - @XMIN) + @XMIN, RAND()*(@YMAX - @YMIN) + @YMIN);")
+
+        //Max and Min coordinate
+        Double xmax = sql.firstRow("SELECT ST_XMAX(ST_Collect(THE_GEOM)) FROM " + roadsTableName)[0]
+        Double ymax = sql.firstRow("SELECT ST_YMAX(ST_Collect(THE_GEOM)) FROM " + roadsTableName)[0]
+        Double xmin = sql.firstRow("SELECT ST_XMIN(ST_Collect(THE_GEOM)) FROM " + roadsTableName)[0]
+        Double ymin = sql.firstRow("SELECT ST_YMIN(ST_Collect(THE_GEOM)) FROM " + roadsTableName)[0]
+
+        sql.execute("create table "+outputTableName+" as select ST_MAKEPOINT(RAND()*("+xmax+" - "+xmin+") + "+xmin+", RAND()*("+ymax+" - "+ymin+") + "+ymin+") as the_geom from system_range(0,"+numberOfPoints+");")
 
         sql.execute("delete from "+outputTableName+ " g where exists (select 1 from "+buildingTableName+" b where g.the_geom && b.the_geom and ST_distance(b.the_geom, g.the_geom) < 1 limit 1);")
 
@@ -53,6 +54,12 @@ String buildingTableName
 	description = "The table with the roads",
 	identifier = "RoadsTableName")
 String roadsTableName
+
+@LiteralDataInput(
+    title = "Number of points",
+    description = "The number of random points generated",
+    minOccurs = 1)
+String numberOfPoints = "50"
 
 /** Output message. */
 @LiteralDataOutput(
