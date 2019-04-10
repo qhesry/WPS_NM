@@ -27,11 +27,11 @@ def processing() {
         def min_max = sql.firstRow("SELECT ST_XMAX(the_geom) as maxX, ST_XMIN(the_geom) as minX, ST_YMAX(the_geom) as maxY, ST_YMIN(the_geom) as minY"
         +" FROM "
         +"("
-                +" SELECT the_geom "
-                +" FROM " + buildingTableName
+                +" SELECT ST_Collect(the_geom) as the_geom "
+                +" FROM " + roadsTableName
                 +" UNION ALL "
                 +" SELECT the_geom " 
-                +" FROM " + roadsTableName
+                +" FROM " + buildingTableName
         +");")
 
         sql.execute("create table "+outputTableName+" as select ST_MAKEPOINT(RAND()*("+min_max.maxX+" - "+min_max.minX+") + "+min_max.minX+", RAND()*("+min_max.maxY+" - "+min_max.minY+") + "+min_max.minY+") as the_geom from system_range(0,"+numberOfPoints+");")
