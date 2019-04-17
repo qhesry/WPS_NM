@@ -43,17 +43,17 @@ def processing() {
 
         current_fractional = 0.0
         current_number_of_point = 1
+        def insertInIndexedPoints = "INSERT INTO indexed_points(old_edge_id, the_geom, number_on_line, gid) VALUES (?, ST_LocateAlong(?, ?), ?, ?);"
 
-        sql.eachRow("SELECT id as id_column, st_transform(the_geom, 2154) as the_geom, "+ buildigsPrimaryKey[0]+" as build_id, st_length(st_transform(the_geom, 2154)) as line_length FROM receivers_build_ratio;"){
-                row ->
-                        current_fractional = 0.0;
-                        while(current_fractional <= 1.0){
-                                sql.execute("INSERT INTO indexed_points(old_edge_id, the_geom, number_on_line, gid) "
-                                        +"VALUES ("+row.id_column+", ST_LocateAlong("+row.the_geom+", current_fractional), current_number_of_point, "+data[i].build_id+");")
-
-                                current_fractional = current_fractional + (5 / data[i].line_length);
-                                current_number_of_point = current_number_of_point + 1
+        sql.eachRow("SELECT id as id_column, st_transform(the_geom, 2154) as the_geom, "+ buildingsPrimaryKey[0]+" as build_id, " +
+                "st_length(st_transform(the_geom, 2154)) as line_length FROM receivers_build_ratio;"){ row ->
+                current_fractional = 0.0;
+                while(current_fractional <= 1.0){
+                        sql.withBatch(insertInIndexedPoints) { batch ->
+                                batch.addBatch(row.id_column, row.the_geom, current_fractional, current_number_of_point, row.build_id)
                         }
+                        current_fractional = current_fractional + (5 / data[i].line_length);
+                        current_number_of_point = current_number_of_point + 1
                 }
         }
         /*sql.execute("CREATE OR REPLACE FUNCTION VBEB_CLASSE2(wanted_len double precision) "
